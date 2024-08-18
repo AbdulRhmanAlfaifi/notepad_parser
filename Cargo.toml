@@ -1,0 +1,35 @@
+[package]
+name = "notepad_parser"
+version = "0.1.0"
+edition = "2021"
+description = "Notepad TabState file parser"
+homepage = "https://u0041.co/posts/articals/exploring-windows-artifacts-notepad-files/"
+repository = "https://github.com/AbdulRhmanAlfaifi/notepad_parser"
+authors = ["AbdulRhman Alfaifi <@A__ALFAIFI>"]
+license = "MIT OR Apache-2.0"
+default-run = "notepad_parser"
+keywords = ["DFIR", "artifacts", "forensics", "windows", "notepad", ""]
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[lib]
+name = "notepad_parser"
+path = "src/lib.rs"
+
+[[bin]]
+name = "notepad_parser"
+path = "src/bin/notepad_parser.rs"
+
+[dependencies]
+winparsingtools = "^2.1.0"
+byteorder = "^1.3"
+serde_json = "^1.0"
+serde = { version = "^1.0", features = ["derive"] }
+thiserror = "^1.0.63"
+
+# CLI deps
+clap = {version = "^4.5.15"}
+glob = "^0.3.1"
+csv = "^1.3.0"
+log4rs = "^1.3.0"
+log = "^0.4.22"
