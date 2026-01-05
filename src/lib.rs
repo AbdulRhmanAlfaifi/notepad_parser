@@ -21,6 +21,15 @@ use std::fs::File;
 use traits::ReadBool;
 
 #[derive(Serialize, Debug)]
+#[serde(rename_all = "snake_case")]
+pub enum FormattingType {
+    Unformated,
+    Markdown,
+    MarkdownSyntax,
+    Unknown,
+}
+
+#[derive(Serialize, Debug)]
 pub struct ConfigBlock {
     pub word_wrap: bool,
     pub rtl: bool,
@@ -28,6 +37,8 @@ pub struct ConfigBlock {
     pub version: u64,
     unknown0: u8,
     unknown1: u8,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    formatting_type: Option<FormattingType>,
 }
 
 impl ConfigBlock {
@@ -91,14 +102,42 @@ impl ConfigBlock {
             }
         };
 
-        Ok(Self {
-            word_wrap,
-            rtl,
-            show_unicode,
-            version,
-            unknown0,
-            unknown1,
-        })
+        if version >= 3 {
+            let formatting_type = match reader.read_u8() {
+                Ok(data) => match data {
+                    1 => Option::Some(FormattingType::Unformated),
+                    2 => Option::Some(FormattingType::Markdown),
+                    3 => Option::Some(FormattingType::MarkdownSyntax),
+                    _ => Option::Some(FormattingType::Unknown),
+                },
+                Err(e) => {
+                    return Err(NotepadErrors::ReadError(
+                        e.to_string(),
+                        "ConfigBlock::formatting_type".to_string(),
+                    ))
+                }
+            };
+
+            Ok(Self {
+                word_wrap,
+                rtl,
+                show_unicode,
+                version,
+                unknown0,
+                unknown1,
+                formatting_type,
+            })
+        } else {
+            Ok(Self {
+                word_wrap,
+                rtl,
+                show_unicode,
+                version,
+                unknown0,
+                unknown1,
+                formatting_type: Option::None,
+            })
+        }
     }
 }
 
@@ -111,6 +150,7 @@ impl Default for ConfigBlock {
             version: 0,
             unknown0: 0,
             unknown1: 0,
+            formatting_type: Option::None,
         }
     }
 }

@@ -44,6 +44,10 @@ fn check_contain_unsaved_data(data: &NotepadTabStat) -> bool {
     data.contain_unsaved_data
 }
 
+fn check_version_gt_three(data: &NotepadTabStat) -> bool {
+    data.config_block.version >= 3
+}
+
 // End: Utils
 
 #[cfg(test)]
@@ -207,8 +211,6 @@ fn tabstat_unsaved_chunks() {
 #[test]
 fn tabstat_sample_saved_english_unsaved_mod() {
     let path = format!("./{}/saved/english/unsaved_mod/*.bin", SAMPLES_DIR_NAME);
-    println!("AAAA");
-    println!("{}", SAMPLES_DIR_NAME);
     for path in get_paths_from_glob(&path) {
         let data = NotepadTabStat::from_path(&path).unwrap();
 
@@ -390,3 +392,23 @@ fn tabstat_sample_saved_arabic_unsaved_mod() {
 }
 
 // End: Arabic language test
+
+// Start: Windows versions
+
+#[cfg(test)]
+#[test]
+fn tabstat_sample_windows_versions() {
+    let path = format!("./{}/vers/*/*.bin", SAMPLES_DIR_NAME);
+    for path in get_paths_from_glob(&path) {
+        let data = NotepadTabStat::from_path(&path).unwrap();
+        let json = serde_json::to_string_pretty(&data).unwrap();
+        println!("{}", json);
+        assert!(
+            check_version_gt_three(&data),
+            "Version should be >= 3, but it shows '{}'",
+            data.config_block.version
+        );
+    }
+}
+
+// End: Windows versions tests
